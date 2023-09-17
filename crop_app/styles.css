@@ -1,0 +1,87 @@
+.stProgress .st-eq {
+    background-color: rgb(0,255,0);
+}
+            
+div.row-widget.stRadio > div[role="radiogroup"] > label[data-baseweb="radio"] > div:first-child {
+    background-color: rgb(0,153,0);
+}
+
+div[data-baseweb="select"] > div:first-child{
+    border-color: rgb(0,255,0);   
+}
+div[class="row-widget stCheckbox"] > label[data-baseweb="checkbox"] > span.st-bu{
+    border-color: rgb(0,153,0);
+    background-color: rgb(0,153,0);
+}
+
+.css-w770g5:hover{
+    border-color: rgb(0,255,0); 
+    color:rgb(0,255,0);   
+}
+.css-w770g5:focus:not(:active){
+    border-color: rgb(0,255,0);  
+    color:rgb(0,255,0); 
+}
+.css-1ql1mmx.focused{
+    border-color: rgb(0,255,0);
+}
+button[kind="secondary"]{
+    border-color: rgb(0,255,0);
+}
+button[kind="secondaryFormSubmit"]{
+border-color: rgb(0,255,0);
+}
+
+div[data-testid="stToolbar"]{
+    display: none;
+}
+footer[class = "css-cio0dv ea3mdgi1"]{
+    display: none;
+}
+div[data-testid="metric-container"]{
+    background-color:gray;
+    padding: 5px;
+    border-radius: 10px;
+}
+
+.st-c7 {
+color: rgb(0,255,0);
+}
+
+div[class="element-container css-1hynsf2 e1f1d6gn2"]> div[data-testid="metric-container"]{
+    font-size: 100px;
+    text-align: center;
+    
+}
+
+div[class="css-j7qwjs eczjsme7"] :hover{
+    background-color:  rgb(34, 99, 34);
+}
+
+
+
+
+button[kind="secondary"]{
+    border-color: rgb(0,255,0);
+}
+button[kind="secondaryFormSubmit"]{
+border-color: rgb(0,255,0);
+}
+div[data-testid="stToolbar"]{
+    display: none;
+}
+footer[class = "css-cio0dv ea3mdgi1"]{
+    display: none;
+}
+
+div.help1{
+    background-color: gray;
+    padding: 10px;
+    border-radius: 10px;
+}
+div.help2{
+    background-color: gray;
+    padding: 10px;
+    border-radius: 10px;
+    margin-top: 10px;
+}

@@ -1,0 +1,7 @@
+pip==23.1.2
+pandas==1.5.3
+statsmodels
+boto3==1.26.163
+Flask==2.0.0
+gunicorn
+

@@ -1,0 +1,21 @@
+cookie:
+  expiry_days: 30
+  key: some_signature_key
+  name: some_cookie_name
+credentials:
+  usernames:
+    dpamod:
+      email: madurasinghekldp@gmail.com
+      name: Dulan Pamod
+      password: $2b$12$upYttE7h4cn4XR5iZSYKt.ubIQ.eyT6Kzxag.rDQj9RHy28l6opT.
+    hdulan:
+      email: hellodulan@gmail.com
+      name: hello dulan
+      password: $2b$12$Y4yCK6Nzv64GGKbwwbNV9OqY3uNTAKRlJilIeoVPG/t5u4xEslklu
+    pmadura:
+      email: madurasingheklp@gmail.com
+      name: Prabath Madurasinghe
+      password: $2b$12$yOssAF/e8PIyoO55DnPBfetrLYrejvJOUTMWjY073WHbFik.SkDL6
+preauthorized:
+  emails:
+  - madurasinghekldp@gmail.com
