@@ -103,4 +103,7 @@ if authentication_status:
                 </div>
                 """,unsafe_allow_html=True
                 )
-    st.video("https://youtu.be/SHSOr9s6l-M")
+    try:
+        st.video("https://youtu.be/SHSOr9s6l-M")
+    except:
+        st.warning("Can not load the video")

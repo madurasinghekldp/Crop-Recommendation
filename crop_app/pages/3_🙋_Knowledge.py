@@ -85,10 +85,11 @@ if authentication_status and admin == None:
             client = MongoClient("mongodb+srv://dulan:dulan@crops.3nnglyt.mongodb.net/?retryWrites=true&w=majority")
             db = client.get_database("crop_db")
             records = db.user_knowledge
+            record_list = list(records.find())
         except:
             st.error('Database connection problem')
             
-        record_list = list(records.find())
+        
         col1,col2 = st.columns(2)
         col3,col4 = st.columns(2)
         col5,col6 = st.columns(2)
@@ -106,53 +107,57 @@ if authentication_status and admin == None:
         # Every form must have a submit button.
         submitted = st.form_submit_button("Submit")
         # Validate the form inputs after submission.
-    if submitted:
-        if not crop_name:
-            st.error("Please enter Crop Name.")
-        elif temp_min is None or temp_max is None:
-            st.error("Please enter both Temperature Min and Temperature Max.")
-        elif rain_min is None or rain_max is None:
-            st.error("Please enter both Rainfall Min and Rainfall Max.")
-        elif humi_min is None or humi_max is None:
-            st.error("Please enter both Humidity Min and Humidity Max.")
-        elif ph_min is None or ph_max is None:
-            st.error("Please enter both pH Min and pH Max.")
-        else:
-            # Process the form data when everything is filled.
-            # Add your code here to handle the form submission.
-            # For example, you can store the data in a database or display it.
-            st.success("Form submitted successfully!")
-            ID_list = []
-            for item in record_list:
-                ID_list.append(item['ID'])
-                ID_list.sort()
-            if records.count_documents({})==0:   
-                new_crop = {
-                    'name': crop_name,
-                    'temp_min': temp_min,
-                    'temp_max': temp_max,
-                    'rain_min': rain_min,
-                    'rain_max': rain_max,
-                    'humi_min': humi_min,
-                    'humi_max': humi_max,
-                    'pH_min': ph_min,
-                    'pH_max': ph_max,
-                    'ID': records.count_documents({})+1
-                }
-            if records.count_documents({})!=0:   
-                new_crop = {
-                    'name': crop_name,
-                    'temp_min': temp_min,
-                    'temp_max': temp_max,
-                    'rain_min': rain_min,
-                    'rain_max': rain_max,
-                    'humi_min': humi_min,
-                    'humi_max': humi_max,
-                    'pH_min': ph_min,
-                    'pH_max': ph_max,
-                    'ID': max(ID_list)+1
-                }
-            records.insert_one(new_crop)
+        
+    try:
+        if submitted:
+            if not crop_name:
+                st.error("Please enter Crop Name.")
+            elif temp_min is None or temp_max is None:
+                st.error("Please enter both Temperature Min and Temperature Max.")
+            elif rain_min is None or rain_max is None:
+                st.error("Please enter both Rainfall Min and Rainfall Max.")
+            elif humi_min is None or humi_max is None:
+                st.error("Please enter both Humidity Min and Humidity Max.")
+            elif ph_min is None or ph_max is None:
+                st.error("Please enter both pH Min and pH Max.")
+            else:
+                # Process the form data when everything is filled.
+                # Add your code here to handle the form submission.
+                # For example, you can store the data in a database or display it.
+                st.success("Form submitted successfully!")
+                ID_list = []
+                for item in record_list:
+                    ID_list.append(item['ID'])
+                    ID_list.sort()
+                if records.count_documents({})==0:   
+                    new_crop = {
+                        'name': crop_name,
+                        'temp_min': temp_min,
+                        'temp_max': temp_max,
+                        'rain_min': rain_min,
+                        'rain_max': rain_max,
+                        'humi_min': humi_min,
+                        'humi_max': humi_max,
+                        'pH_min': ph_min,
+                        'pH_max': ph_max,
+                        'ID': records.count_documents({})+1
+                    }
+                if records.count_documents({})!=0:   
+                    new_crop = {
+                        'name': crop_name,
+                        'temp_min': temp_min,
+                        'temp_max': temp_max,
+                        'rain_min': rain_min,
+                        'rain_max': rain_max,
+                        'humi_min': humi_min,
+                        'humi_max': humi_max,
+                        'pH_min': ph_min,
+                        'pH_max': ph_max,
+                        'ID': max(ID_list)+1
+                    }
+                records.insert_one(new_crop)
+    except:
+            st.error('Database connection problem')
             
 if authentication_status and admin != None:
     st.metric("","Crop Data Viewer and Updater")
@@ -210,36 +215,38 @@ if authentication_status and admin != None:
     # Function to connect to MongoDB and fetch all records
     def fetch_all_records():
         # Replace the following with your MongoDB connection details
-        try:
-            client = MongoClient("mongodb+srv://dulan:dulan@crops.3nnglyt.mongodb.net/?retryWrites=true&w=majority")
-            db = client.get_database("crop_db")
-            records = db.crop_records
-            record_list = list(records.find())
-            return record_list
-        except:
-            st.error('Database connection problem')
+        
+        client = MongoClient("mongodb+srv://dulan:dulan@crops.3nnglyt.mongodb.net/?retryWrites=true&w=majority")
+        db = client.get_database("crop_db")
+        records = db.crop_records
+        record_list = list(records.find())
+        return record_list
 
 
 
     def main():
         st.header("Update Data")
         # Fetch all records from MongoDB
-        records = fetch_all_records()
+        try:
+            records = fetch_all_records()
+            
+            #st.dataframe(data=records)
+            df = pd.DataFrame(records)
+            df = df.drop(["_id"],axis=1)
         
-        #st.dataframe(data=records)
-        df = pd.DataFrame(records)
-        df = df.drop(["_id"],axis=1)
-        #df["_id"] = df["_id"].str.replace(r"ObjectId\('(.*)'\)", r'\1', regex=True)
-        gd = GridOptionsBuilder.from_dataframe(df)
-        gd.configure_pagination(enabled=True)
-        gd.configure_default_column(editable=True,groupable=True)
-        gd.configure_column("ID", editable=False)
-        sel_mode = st.radio('Selection Type',options = ['single','multiple'])
-        gd.configure_selection(selection_mode = sel_mode, use_checkbox = True)
-        gridoptions = gd.build()
-        grid_table = AgGrid(df,gridOptions = gridoptions, update_mode = GridUpdateMode.SELECTION_CHANGED,width ='100%',
-                             allow_unsafe_jscode=True,theme = 'alpine')
-        sel_row = grid_table['selected_rows']
+            #df["_id"] = df["_id"].str.replace(r"ObjectId\('(.*)'\)", r'\1', regex=True)
+            gd = GridOptionsBuilder.from_dataframe(df)
+            gd.configure_pagination(enabled=True)
+            gd.configure_default_column(editable=True,groupable=True)
+            gd.configure_column("ID", editable=False)
+            sel_mode = st.radio('Selection Type',options = ['single','multiple'])
+            gd.configure_selection(selection_mode = sel_mode, use_checkbox = True)
+            gridoptions = gd.build()
+            grid_table = AgGrid(df,gridOptions = gridoptions, update_mode = GridUpdateMode.SELECTION_CHANGED,width ='100%',
+                                allow_unsafe_jscode=True,theme = 'alpine')
+            sel_row = grid_table['selected_rows']
+        except:
+            st.error('Database connection problem')
         col1,col2 = st.columns(2)
         try:
             if sel_mode == 'single' and len(sel_row) != 0:
@@ -258,9 +265,10 @@ if authentication_status and admin != None:
             client = MongoClient("mongodb+srv://dulan:dulan@crops.3nnglyt.mongodb.net/?retryWrites=true&w=majority")
             db = client.get_database("crop_db")
             records = db.crop_records
+            record_list = list(records.find())
         except:
             st.error('Database connection problem')
-        record_list = list(records.find())
+        
         col1,col2 = st.columns(2)
         col3,col4 = st.columns(2)
         col5,col6 = st.columns(2)
@@ -278,53 +286,57 @@ if authentication_status and admin != None:
         # Every form must have a submit button.
         submitted = st.form_submit_button("Submit")
         # Validate the form inputs after submission.
-    if submitted:
-        if not crop_name:
-            st.error("Please enter Crop Name.")
-        elif temp_min is None or temp_max is None:
-            st.error("Please enter both Temperature Min and Temperature Max.")
-        elif rain_min is None or rain_max is None:
-            st.error("Please enter both Rainfall Min and Rainfall Max.")
-        elif humi_min is None or humi_max is None:
-            st.error("Please enter both Humidity Min and Humidity Max.")
-        elif ph_min is None or ph_max is None:
-            st.error("Please enter both pH Min and pH Max.")
-        else:
-            # Process the form data when everything is filled.
-            # Add your code here to handle the form submission.
-            # For example, you can store the data in a database or display it.
-            st.success("Form submitted successfully!")
-            ID_list = []
-            for item in record_list:
-                ID_list.append(item['ID'])
-                ID_list.sort()
-            if records.count_documents({})==0:   
-                new_crop = {
-                    'name': crop_name,
-                    'temp_min': temp_min,
-                    'temp_max': temp_max,
-                    'rain_min': rain_min,
-                    'rain_max': rain_max,
-                    'humi_min': humi_min,
-                    'humi_max': humi_max,
-                    'pH_min': ph_min,
-                    'pH_max': ph_max,
-                    'ID': records.count_documents({})+1
-                }
-            if records.count_documents({})!=0:   
-                new_crop = {
-                    'name': crop_name,
-                    'temp_min': temp_min,
-                    'temp_max': temp_max,
-                    'rain_min': rain_min,
-                    'rain_max': rain_max,
-                    'humi_min': humi_min,
-                    'humi_max': humi_max,
-                    'pH_min': ph_min,
-                    'pH_max': ph_max,
-                    'ID': max(ID_list)+1
-                }
-            records.insert_one(new_crop)
+    
+    try:
+        if submitted:
+            if not crop_name:
+                st.error("Please enter Crop Name.")
+            elif temp_min is None or temp_max is None:
+                st.error("Please enter both Temperature Min and Temperature Max.")
+            elif rain_min is None or rain_max is None:
+                st.error("Please enter both Rainfall Min and Rainfall Max.")
+            elif humi_min is None or humi_max is None:
+                st.error("Please enter both Humidity Min and Humidity Max.")
+            elif ph_min is None or ph_max is None:
+                st.error("Please enter both pH Min and pH Max.")
+            else:
+                # Process the form data when everything is filled.
+                # Add your code here to handle the form submission.
+                # For example, you can store the data in a database or display it.
+                st.success("Form submitted successfully!")
+                ID_list = []
+                for item in record_list:
+                    ID_list.append(item['ID'])
+                    ID_list.sort()
+                if records.count_documents({})==0:   
+                    new_crop = {
+                        'name': crop_name,
+                        'temp_min': temp_min,
+                        'temp_max': temp_max,
+                        'rain_min': rain_min,
+                        'rain_max': rain_max,
+                        'humi_min': humi_min,
+                        'humi_max': humi_max,
+                        'pH_min': ph_min,
+                        'pH_max': ph_max,
+                        'ID': records.count_documents({})+1
+                    }
+                if records.count_documents({})!=0:   
+                    new_crop = {
+                        'name': crop_name,
+                        'temp_min': temp_min,
+                        'temp_max': temp_max,
+                        'rain_min': rain_min,
+                        'rain_max': rain_max,
+                        'humi_min': humi_min,
+                        'humi_max': humi_max,
+                        'pH_min': ph_min,
+                        'pH_max': ph_max,
+                        'ID': max(ID_list)+1
+                    }
+                records.insert_one(new_crop)
+    except:
+            st.error('Database connection problem')
 
     if __name__ == "__main__":
         main()
