@@ -103,6 +103,18 @@ if authentication_status:
                 </div>
                 """,unsafe_allow_html=True
                 )
+    st.sidebar.markdown(f"""
+                <div class="help3">
+                <h3>You are logged into the system.</h3>
+                <p>
+                {name},
+                </p>
+                <p>
+                We will guide you for your cultivation.
+                </p>
+                </div>
+                """,unsafe_allow_html=True
+                )
     try:
         st.video("https://youtu.be/SHSOr9s6l-M")
     except:

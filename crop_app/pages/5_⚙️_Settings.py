@@ -59,6 +59,18 @@ if authentication_status:
     authenticator.logout("Logout","sidebar")
     
 if authentication_status:
+    st.sidebar.markdown(f"""
+                <div class="help3">
+                <h3>You are logged into the system.</h3>
+                <p>
+                {name},
+                </p>
+                <p>
+                We will guide you for your cultivation.
+                </p>
+                </div>
+                """,unsafe_allow_html=True
+                )
     try:
         if authenticator.reset_password(username, 'Reset password'):
             st.success('Password modified successfully')

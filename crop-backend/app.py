@@ -9,6 +9,7 @@ import numpy as np
 from weather import WeatherForecast
 from crop import PredictedCrop
 from location import LocationModel
+import concurrent.futures
 #import joblib
 
 
@@ -67,7 +68,17 @@ def get_weather_data():
     return "",204
 
 
+##############################################
 
+def create_location(df,location):
+    lm = LocationModel()
+    
+    try:
+        lm.create_temp_model(df,location)
+        lm.create_rain_model(df,location)
+        lm.create_humi_model(df,location)
+    except Exception as e:
+        print(e)
 ##############################################################
 
 @app.route('/location',methods=['POST'])
@@ -96,13 +107,11 @@ def update_location():
     dfn.drop(["YEAR","MONTH"],axis = 1, inplace=True)
     dfn.set_index("DATE",inplace=True)
     df = dfn.loc["2015-12-01":"2021-12-01"]
-    lm = LocationModel()
     try:
-        lm.create_temp_model(df,location)
-        lm.create_rain_model(df,location)
-        lm.create_humi_model(df,location)
-        return "Successfully created",201
-    except Exception as e:
+        with concurrent.futures.ThreadPoolExecutor() as executor:
+            executor.submit(create_location(df,location))
+            return "Location will be created",201
+    except:
         print(e)
         return "Something went wrong",400
 

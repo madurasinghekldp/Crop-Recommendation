@@ -79,6 +79,19 @@ except:
     st.error('Database connection problem')
 
 if authentication_status and admin == None:
+    st.sidebar.markdown(f"""
+                <div class="help3">
+                <h3>You are logged into the system.</h3>
+                <p>
+                {name},
+                </p>
+                <p>
+                We will guide you for your cultivation.
+                </p>
+                </div>
+                """,unsafe_allow_html=True
+                )
+    
     st.metric("","Provide your knowledge to improve our system")
     with st.form("knowledge_form"):
         try:
@@ -160,6 +173,19 @@ if authentication_status and admin == None:
             st.error('Database connection problem')
             
 if authentication_status and admin != None:
+    st.sidebar.markdown(f"""
+                <div class="help3">
+                <h3>You are logged into the system.</h3>
+                <p>
+                {name},
+                </p>
+                <p>
+                We will guide you for your cultivation.
+                </p>
+                </div>
+                """,unsafe_allow_html=True
+                )
+    
     st.metric("","Crop Data Viewer and Updater")
     st.header("Add New Data")
     def update_one(sel_row):
@@ -221,6 +247,67 @@ if authentication_status and admin != None:
         records = db.crop_records
         record_list = list(records.find())
         return record_list
+    
+    
+    def add_from_knowledge(sel_row):
+        client = MongoClient("mongodb+srv://dulan:dulan@crops.3nnglyt.mongodb.net/?retryWrites=true&w=majority")
+        db = client.get_database("crop_db")
+        records_2 = db.user_knowledge
+        records = db.crop_records
+        record_list = list(records.find())
+        ID_list = []
+        for item in record_list:
+            ID_list.append(item['ID'])
+            ID_list.sort()
+            
+        if records.count_documents({})==0:
+            add_crop = {
+    
+            'name':sel_row[0]["name"],
+            'temp_min':float(sel_row[0]["temp_min"]),
+            'temp_max':float(sel_row[0]["temp_max"]),
+            'rain_min':float(sel_row[0]["rain_min"]),
+            'rain_max':float(sel_row[0]["rain_max"]),
+            'humi_min':float(sel_row[0]["humi_min"]),
+            'humi_max':float(sel_row[0]["humi_max"]),
+            'pH_min':float(sel_row[0]["pH_min"]),
+            'pH_max':float(sel_row[0]["pH_max"]),
+            'ID': records.count_documents({})+1
+            }
+            
+        if records.count_documents({})!=0:
+            add_crop = {
+    
+            'name':sel_row[0]["name"],
+            'temp_min':float(sel_row[0]["temp_min"]),
+            'temp_max':float(sel_row[0]["temp_max"]),
+            'rain_min':float(sel_row[0]["rain_min"]),
+            'rain_max':float(sel_row[0]["rain_max"]),
+            'humi_min':float(sel_row[0]["humi_min"]),
+            'humi_max':float(sel_row[0]["humi_max"]),
+            'pH_min':float(sel_row[0]["pH_min"]),
+            'pH_max':float(sel_row[0]["pH_max"]),
+            'ID': max(ID_list)+1
+            }
+            
+        
+        records.insert_one(add_crop)
+        records_2.delete_one({"name": sel_row[0]["name"]})
+        
+    def delete_from_knowledge(sel_row):
+        client = MongoClient("mongodb+srv://dulan:dulan@crops.3nnglyt.mongodb.net/?retryWrites=true&w=majority")
+        db = client.get_database("crop_db")
+        records = db.user_knowledge
+        records.delete_one({"name": sel_row[0]["name"]})      
+    
+    def fetch_from_userrecords():
+        # Replace the following with your MongoDB connection details
+        
+        client = MongoClient("mongodb+srv://dulan:dulan@crops.3nnglyt.mongodb.net/?retryWrites=true&w=majority")
+        db = client.get_database("crop_db")
+        records = db.user_knowledge
+        record_list = list(records.find())
+        return record_list
 
 
 
@@ -246,7 +333,7 @@ if authentication_status and admin != None:
                                 allow_unsafe_jscode=True,theme = 'alpine')
             sel_row = grid_table['selected_rows']
         except:
-            st.error('Database connection problem')
+            st.warning('Data is not available.')
         col1,col2 = st.columns(2)
         try:
             if sel_mode == 'single' and len(sel_row) != 0:
@@ -258,6 +345,37 @@ if authentication_status and admin != None:
         except:
             st.warning("Please select one or more, If you want to update or delete.")
         
+        ########
+        st.header("Add From User's Data")
+        # Fetch all records from MongoDB
+        try:
+            records_2 = fetch_from_userrecords()
+            
+            #st.dataframe(data=records)
+            df_2 = pd.DataFrame(records_2)
+            df_2 = df_2.drop(["_id"],axis=1)
+        
+            #df["_id"] = df["_id"].str.replace(r"ObjectId\('(.*)'\)", r'\1', regex=True)
+            gd_2 = GridOptionsBuilder.from_dataframe(df_2)
+            gd_2.configure_pagination(enabled=True)
+            gd_2.configure_default_column(editable=True,groupable=True)
+            gd_2.configure_column("ID", editable=False)
+            #sel_mode = st.radio('Selection Type',options = ['single','multiple'])
+            gd_2.configure_selection(selection_mode = 'single', use_checkbox = True)
+            gridoptions_2 = gd_2.build()
+            grid_table_2 = AgGrid(df_2,gridOptions = gridoptions_2, update_mode = GridUpdateMode.SELECTION_CHANGED,width ='100%',
+                                allow_unsafe_jscode=True,theme = 'alpine')
+            sel_row_2 = grid_table_2['selected_rows']
+        except Exception as e:
+            st.warning('Data is not available.')
+        col3,col4 = st.columns(2)
+        try:
+            if len(sel_row_2) != 0:
+                add1 = col3.button("Add To System",on_click = lambda:add_from_knowledge(sel_row_2))
+                delete1 = col4.button("Delete One",on_click = lambda:delete_from_knowledge(sel_row_2))
+            
+        except:
+            st.warning("Please select one row to add.")
         #st.write(sel_row)
 
     with st.form("knowledge_form"):
@@ -352,7 +470,7 @@ def uploadfile(csv_file, location_name):
     # Make a POST request to the Flask backend
     response = requests.post(url, files=files, data=data)
     if response.status_code == 201:
-        st.success("New location added successfully.")
+        st.success("New location will be added.")
     else:
         st.error("Something went wrong.")
     

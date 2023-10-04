@@ -15,7 +15,7 @@ credentials:
     pmadura:
       email: madurasingheklp@gmail.com
       name: Prabath Madurasinghe
-      password: $2b$12$yOssAF/e8PIyoO55DnPBfetrLYrejvJOUTMWjY073WHbFik.SkDL6
+      password: $2b$12$QEuq9ag.xig7yRFhB28etObcKh9b7AakFhYlGac7JLcGEW.5ymIU.
 preauthorized:
   emails:
   - madurasinghekldp@gmail.com
